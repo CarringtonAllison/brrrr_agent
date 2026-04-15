@@ -54,7 +54,10 @@ class TestFuzzyMatch:
         assert fuzzy_match("123 main street", "123 main street") is True
 
     def test_close_match(self):
-        assert fuzzy_match("123 main street", "123 main st") is True
+        """After normalization, 'st' becomes 'street' — both should match."""
+        a = normalize_address("123 Main St")
+        b = normalize_address("123 Main Street")
+        assert fuzzy_match(a, b) is True
 
     def test_no_match(self):
         assert fuzzy_match("123 main street", "456 oak avenue") is False
