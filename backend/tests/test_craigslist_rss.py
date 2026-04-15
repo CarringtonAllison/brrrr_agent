@@ -121,21 +121,18 @@ class TestExtractFromPage:
 
 
 class TestCraigslistScraper:
-    @patch("backend.scrapers.craigslist_rss.feedparser.parse")
-    def test_get_for_sale_listings(self, mock_parse):
+    @patch("backend.scrapers.craigslist_rss.requests.Session.get")
+    def test_get_for_sale_listings(self, mock_get):
         """Scraper should parse RSS feed and return standardized listings."""
-        mock_parse.return_value = MagicMock(
-            entries=[
-                MagicMock(
-                    title="$65000 3br - 1100ft2 - Investor Special (Birmingham)",
-                    link="https://birmingham.craigslist.org/rea/d/test/7800001.html",
-                    summary="Estate sale as-is",
-                ),
-            ]
-        )
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = SAMPLE_RSS
+        mock_get.return_value = mock_resp
 
         scraper = CraigslistScraper(fetch_individual_pages=False)
         listings = scraper.get_for_sale_listings("birmingham")
-        assert len(listings) == 1
+        assert len(listings) == 2
         assert listings[0]["source"] == "craigslist"
         assert listings[0]["price"] == 65_000
+        assert listings[0]["beds"] == 3
+        assert listings[0]["source_id"] == "7800001"
