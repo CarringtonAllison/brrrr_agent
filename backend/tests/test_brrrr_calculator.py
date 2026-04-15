@@ -255,17 +255,36 @@ class TestGradeDeal:
 
 
 class TestRunFullAnalysis:
-    def test_complete_analysis(self):
-        """Integration test: full pipeline with known inputs."""
+    def test_complete_analysis_strong_deal(self):
+        """Integration test: $45k purchase, $100k ARV, $1400 rent → STRONG.
+
+        all-in ≈ 59,735.  70% of 100k = 70k → passes.
+        refi = 75k.  mortgage ≈ $524/mo.
+        cashflow = (1400*0.50) - 524 = $176/mo
+        DSCR = (1400*6) / (524*12) ≈ 1.34 → clears 1.25
+        CoC = infinite (negative cash left)
+        rent_to_price = 1400/45000 = 3.1%
+        """
         result = run_full_analysis(
-            purchase_price=65_000,
-            arv=115_000,
-            estimated_rent=1_050,
+            purchase_price=45_000,
+            arv=100_000,
+            estimated_rent=1_400,
         )
-        assert result.purchase_price == 65_000
-        assert result.total_all_in > 65_000
-        assert result.arv_used == 115_000
+        assert result.purchase_price == 45_000
+        assert result.total_all_in > 45_000
         assert result.seventy_pct_rule_pass is True
-        assert result.refi_loan == pytest.approx(86_250)
-        assert result.monthly_mortgage > 0
-        assert result.grade in ("STRONG", "GOOD", "MAYBE", "SKIP")
+        assert result.refi_loan == pytest.approx(75_000)
+        assert result.cash_left_in_deal < 0  # money pulled out
+        assert result.monthly_cashflow > 0
+        assert result.dscr >= 1.25
+        assert result.grade == "STRONG"
+
+    def test_complete_analysis_failing_deal(self):
+        """Integration test: $85k purchase, $100k ARV — fails 70% rule."""
+        result = run_full_analysis(
+            purchase_price=85_000,
+            arv=100_000,
+            estimated_rent=900,
+        )
+        assert result.seventy_pct_rule_pass is False
+        assert result.grade == "SKIP"
