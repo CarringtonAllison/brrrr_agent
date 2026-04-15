@@ -167,14 +167,10 @@ class TestBuildUrls:
 
 
 class TestRedfinScraper:
-    @patch("backend.scrapers.redfin_api.requests.get")
-    def test_scrape_active_listings(self, mock_get):
-        mock_resp = MagicMock()
-        mock_resp.status_code = 200
-        mock_resp.text = SAMPLE_GIS_RESPONSE
-        mock_get.return_value = mock_resp
+    def test_scrape_active_listings(self):
+        scraper = RedfinScraper(delay_range=(0, 0))
+        scraper._fetch_with_retry = MagicMock(return_value=SAMPLE_GIS_RESPONSE)
 
-        scraper = RedfinScraper()
         market = {
             "redfin_region_id": "19013",
             "redfin_region_type": "6",
@@ -184,30 +180,35 @@ class TestRedfinScraper:
         assert len(listings) == 2
         assert listings[0]["source"] == "redfin"
 
-    @patch("backend.scrapers.redfin_api.requests.get")
-    def test_handles_429_gracefully(self, mock_get):
+    def test_handles_fetch_returning_none(self):
+        """When _fetch_with_retry returns None (429, error, etc), return empty list."""
+        scraper = RedfinScraper(delay_range=(0, 0))
+        scraper._fetch_with_retry = MagicMock(return_value=None)
+
+        market = {
+            "redfin_region_id": "19013",
+            "redfin_region_type": "6",
+            "zip_codes": ["44108"],
+        }
+        listings = scraper.get_active_listings(market)
+        assert listings == []
+
+    @patch("backend.scrapers.redfin_api.requests.Session.get")
+    def test_429_triggers_backoff(self, mock_get):
+        """429 response should trigger retries, eventually return None."""
         mock_resp = MagicMock()
         mock_resp.status_code = 429
         mock_get.return_value = mock_resp
 
-        scraper = RedfinScraper(max_retries=1, backoff_base=0.01)
-        market = {
-            "redfin_region_id": "19013",
-            "redfin_region_type": "6",
-            "zip_codes": ["44108"],
-        }
-        listings = scraper.get_active_listings(market)
-        assert listings == []
+        scraper = RedfinScraper(max_retries=2, backoff_base=0.01, delay_range=(0, 0))
+        result = scraper._fetch_with_retry("https://example.com")
+        assert result is None
+        assert mock_get.call_count == 2
 
-    @patch("backend.scrapers.redfin_api.requests.get")
-    def test_handles_error_gracefully(self, mock_get):
+    @patch("backend.scrapers.redfin_api.requests.Session.get")
+    def test_network_error_handled(self, mock_get):
         mock_get.side_effect = Exception("Network error")
 
-        scraper = RedfinScraper(max_retries=1, backoff_base=0.01)
-        market = {
-            "redfin_region_id": "19013",
-            "redfin_region_type": "6",
-            "zip_codes": ["44108"],
-        }
-        listings = scraper.get_active_listings(market)
-        assert listings == []
+        scraper = RedfinScraper(max_retries=1, backoff_base=0.01, delay_range=(0, 0))
+        result = scraper._fetch_with_retry("https://example.com")
+        assert result is None
