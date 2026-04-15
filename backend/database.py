@@ -167,7 +167,7 @@ class Database:
     """SQLite database with WAL mode for the BRRRR deal finder."""
 
     def __init__(self, db_path: str = "brrrr_deals.db"):
-        self.conn = sqlite3.connect(db_path)
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA busy_timeout=5000")
