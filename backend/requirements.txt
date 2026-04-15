@@ -1,0 +1,17 @@
+fastapi>=0.115
+uvicorn>=0.30
+anthropic>=0.40
+feedparser>=6.0
+requests>=2.31
+beautifulsoup4>=4.12
+playwright>=1.40
+playwright-stealth>=1.0
+rapidfuzz>=3.5
+lxml>=5.1
+python-dotenv>=1.0
+pgeocode>=0.4
+geopy>=2.4
+numpy>=1.26
+httpx>=0.27
+pytest>=8.0
+pytest-asyncio>=0.23
