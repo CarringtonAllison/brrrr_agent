@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import Database
 from backend.routers.markets import create_markets_router
+from backend.routers.scans import create_scans_router
 
 
 def create_app(db_path: str | None = None) -> FastAPI:
@@ -31,6 +32,7 @@ def create_app(db_path: str | None = None) -> FastAPI:
     app.state.db = db
 
     app.include_router(create_markets_router(db))
+    app.include_router(create_scans_router(db))
 
     @app.get("/health")
     def health():
