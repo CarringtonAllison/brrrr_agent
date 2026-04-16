@@ -24,9 +24,9 @@ npm test                        # verify 1 test passes
 
 ## Current Status
 
-**Last updated:** 2026-04-15
-**Current phase:** Phase 2 COMPLETE — starting Phase 3
-**Total backend tests:** 132 passing
+**Last updated:** 2026-04-16
+**Current phase:** Phase 3 COMPLETE — starting Phase 4
+**Total backend tests:** 239 passing
 **Total frontend tests:** 1 passing
 **Commits so far:** 20
 
@@ -96,20 +96,20 @@ npm test                        # verify 1 test passes
   - Merge: Redfin preferred for numerics, CL for descriptions
   - ScraperManager orchestrating Redfin → Craigslist (Zillow async)
 
-### Phase 3: Analysis Pipeline [NOT STARTED]
+### Phase 3: Analysis Pipeline [COMPLETE]
 
 | # | Task | File | Status |
 |---|------|------|--------|
-| 1 | Test tiered comp filtering, scoring, weighted ARV | `tests/test_comp_analyzer.py` | |
-| 2 | Implement comp analyzer | `comp_analyzer.py` | |
-| 3 | Test rental median calc, outlier removal, fallback | `tests/test_rental_estimator.py` | |
-| 4 | Implement rental estimator | `rental_estimator.py` | |
-| 5 | Test keyword matching, scoring | `tests/test_motivation_detector.py` | |
-| 6 | Implement motivation detector | `motivation_detector.py` | |
-| 7 | Test SSE event generation, phase progression | `tests/test_orchestrator.py` | |
-| 8 | Implement orchestrator (async generator → SSE) | `agents/orchestrator.py` | |
-| 9 | Test scan trigger, SSE stream endpoints | `tests/test_scans_router.py` | |
-| 10 | Implement scan router | `routers/scans.py` | |
+| 1 | Test tiered comp filtering, scoring, weighted ARV | `tests/test_comp_analyzer.py` | ✅ 31 tests |
+| 2 | Implement comp analyzer | `comp_analyzer.py` | ✅ |
+| 3 | Test rental median calc, outlier removal, fallback | `tests/test_rental_estimator.py` | ✅ 22 tests |
+| 4 | Implement rental estimator | `rental_estimator.py` | ✅ |
+| 5 | Test keyword matching, scoring | `tests/test_motivation_detector.py` | ✅ 31 tests |
+| 6 | Implement motivation detector | `motivation_detector.py` | ✅ |
+| 7 | Test SSE event generation, phase progression | `tests/test_orchestrator.py` | ✅ 14 tests |
+| 8 | Implement orchestrator (async generator → SSE) | `agents/orchestrator.py` | ✅ |
+| 9 | Test scan trigger, SSE stream endpoints | `tests/test_scans_router.py` | ✅ 9 tests |
+| 10 | Implement scan router | `routers/scans.py` | ✅ |
 
 **Key details:**
 - Comp analyzer: 3 sources (Redfin similars/solds + GIS sold + Zillow sold). Tiered filtering (starts tight, widens if < 3 comps). Similarity scoring 0-100: distance(30) + recency(25) + sqft(20) + beds(15) + baths(10). Weighted ARV percentiles. Exclude distressed sales.
@@ -286,13 +286,13 @@ backend/
   brrrr_calculator.py  ✅ Full BRRRR formula engine
   prefilter.py         ✅ Listing pre-filter
   geocoder.py          ✅ Bounding box, ZIP proximity, Census geocoder
-  comp_analyzer.py     ⬜ Phase 3
-  rental_estimator.py  ⬜ Phase 3
-  motivation_detector.py ⬜ Phase 3
+  comp_analyzer.py     ✅ Phase 3
+  rental_estimator.py  ✅ Phase 3
+  motivation_detector.py ✅ Phase 3
   routers/
     markets.py         ✅ Market CRUD
-    scans.py           ⬜ Phase 3
-    listings.py        ⬜ Phase 3
+    scans.py           ✅ Phase 3
+    listings.py        ⬜ Phase 4
     deals.py           ⬜ Phase 6
   scrapers/
     redfin_api.py      ✅ GIS active/sold + similars/solds + retry
@@ -300,7 +300,7 @@ backend/
     zillow_scraper.py  ✅ Playwright + stealth + CF detection
     scraper_manager.py ✅ Cross-source dedup + merge
   agents/
-    orchestrator.py    ⬜ Phase 3
+    orchestrator.py    ✅ Phase 3
     deal_analyst.py    ⬜ Phase 6
     negotiation_agent.py ⬜ Phase 6
     tools.py           ⬜ Phase 6
@@ -311,6 +311,11 @@ backend/
     test_prefilter.py     ✅ 24 tests
     test_database.py      ✅ 21 tests
     test_markets_router.py ✅ 6 tests
+    test_comp_analyzer.py  ✅ 31 tests
+    test_rental_estimator.py ✅ 22 tests
+    test_motivation_detector.py ✅ 31 tests
+    test_orchestrator.py   ✅ 14 tests
+    test_scans_router.py   ✅ 9 tests
 src/
   App.tsx              ✅ Minimal shell
   App.test.tsx         ✅ 1 smoke test
