@@ -14,7 +14,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate        # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
-pytest                          # verify 80 tests pass
+pytest                          # verify 132 tests pass
 cd ..
 
 # Frontend
@@ -25,10 +25,10 @@ npm test                        # verify 1 test passes
 ## Current Status
 
 **Last updated:** 2026-04-15
-**Current phase:** Phase 1 COMPLETE — starting Phase 2
-**Total backend tests:** 80 passing
+**Current phase:** Phase 2 COMPLETE — starting Phase 3
+**Total backend tests:** 132 passing
 **Total frontend tests:** 1 passing
-**Commits so far:** 10
+**Commits so far:** 20
 
 ---
 
@@ -69,28 +69,32 @@ npm test                        # verify 1 test passes
 
 ## What's Next
 
-### Phase 2: Scrapers [NOT STARTED]
-TDD: write failing test → commit → implement → commit
-
-| # | Task | File | Status |
-|---|------|------|--------|
-| 1 | Test bounding box math, ZIP proximity | `tests/test_geocoder.py` | |
-| 2 | Implement geocoding | `geocoder.py` | |
-| 3 | Test Redfin response parsing, cache (mock HTTP) | `tests/test_redfin_api.py` | |
-| 4 | Implement Redfin scraper | `scrapers/redfin_api.py` | |
-| 5 | Test Craigslist RSS parsing (mock feeds) | `tests/test_craigslist_rss.py` | |
-| 6 | Implement Craigslist scraper | `scrapers/craigslist_rss.py` | |
-| 7 | Test Zillow DOM extraction, CF detection | `tests/test_zillow_scraper.py` | |
-| 8 | Implement Zillow scraper | `scrapers/zillow_scraper.py` | |
-| 9 | Test dedup, merge logic | `tests/test_scraper_manager.py` | |
-| 10 | Implement scraper orchestration | `scrapers/scraper_manager.py` | |
-
-**Key details:**
-- Redfin: `/stingray/api/gis` for active (status=1) and sold (status=9). `similars/solds` for per-property comps. Strip `{}&&` prefix. Exponential backoff on 429s.
-- Craigslist: RSS feeds for for-sale AND rentals. feedparser + BeautifulSoup for individual pages.
-- Zillow: Playwright + playwright_stealth. Headless Chromium. Detect Cloudflare → skip gracefully.
-- Geocoder: pgeocode (offline ZIP→coords) + US Census geocoder (address→coords, free). 5-mile radius bounding box for comp search.
-- Scraper manager: run order Redfin→CL→Zillow. Dedup via normalized address + rapidfuzz. Merge: Redfin preferred for numerics, CL for description.
+### Phase 2: Scrapers [COMPLETE]
+- [x] `geocoder.py` — 11 tests
+  - Bounding box math for radius-based comp search
+  - pgeocode (offline) for ZIP centroid lookups
+  - find_nearby_zips: all ZIPs within N miles, sorted by distance
+  - Census Bureau geocoder for street address → lat/lon
+  - In-memory caching for geocode results
+- [x] `scrapers/redfin_api.py` — 13 tests
+  - parse_redfin_response strips `{}&&` prefix
+  - Extract active listings and sold comps from GIS endpoint
+  - URL builders for GIS (active/sold) and similars/solds
+  - RedfinScraper class with exponential backoff on 429s
+  - Browser-realistic headers, configurable delays
+- [x] `scrapers/craigslist_rss.py` — 12 tests
+  - RSS URL builder for for-sale and rental feeds
+  - Parse price, beds, sqft from CL title format
+  - BeautifulSoup extraction for address + description from listing pages
+  - CraigslistScraper class with rate limiting
+- [x] `scrapers/zillow_scraper.py` — 8 tests
+  - DOM extraction from Zillow property cards
+  - Cloudflare/CAPTCHA detection
+  - Playwright + stealth async scraper (graceful failure)
+- [x] `scrapers/scraper_manager.py` — 8 tests
+  - Cross-source dedup via normalized address + fuzzy match
+  - Merge: Redfin preferred for numerics, CL for descriptions
+  - ScraperManager orchestrating Redfin → Craigslist (Zillow async)
 
 ### Phase 3: Analysis Pipeline [NOT STARTED]
 
@@ -281,7 +285,7 @@ backend/
   database.py          ✅ SQLite + normalization + CRUD
   brrrr_calculator.py  ✅ Full BRRRR formula engine
   prefilter.py         ✅ Listing pre-filter
-  geocoder.py          ⬜ Phase 2
+  geocoder.py          ✅ Bounding box, ZIP proximity, Census geocoder
   comp_analyzer.py     ⬜ Phase 3
   rental_estimator.py  ⬜ Phase 3
   motivation_detector.py ⬜ Phase 3
@@ -291,10 +295,10 @@ backend/
     listings.py        ⬜ Phase 3
     deals.py           ⬜ Phase 6
   scrapers/
-    redfin_api.py      ⬜ Phase 2
-    craigslist_rss.py  ⬜ Phase 2
-    zillow_scraper.py  ⬜ Phase 2
-    scraper_manager.py ⬜ Phase 2
+    redfin_api.py      ✅ GIS active/sold + similars/solds + retry
+    craigslist_rss.py  ✅ RSS for-sale + rentals + page extraction
+    zillow_scraper.py  ✅ Playwright + stealth + CF detection
+    scraper_manager.py ✅ Cross-source dedup + merge
   agents/
     orchestrator.py    ⬜ Phase 3
     deal_analyst.py    ⬜ Phase 6
