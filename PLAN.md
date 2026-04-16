@@ -25,10 +25,10 @@ npm test                        # verify 1 test passes
 ## Current Status
 
 **Last updated:** 2026-04-16
-**Current phase:** Phase 4 COMPLETE — starting Phase 5
+**Current phase:** Phase 5 COMPLETE — starting Phase 6
 **Total backend tests:** 239 passing
-**Total frontend tests:** 44 passing
-**Commits so far:** 23
+**Total frontend tests:** 73 passing
+**Commits so far:** 26
 
 ---
 
@@ -137,17 +137,17 @@ npm test                        # verify 1 test passes
 - Client-side filtering (no API calls for filter changes).
 - If cached data < 6 hours old, show instantly with "Rescan" option.
 
-### Phase 5: React Frontend — Detail + Interactivity [NOT STARTED]
+### Phase 5: React Frontend — Detail + Interactivity [COMPLETE]
 
 | # | Task | File | Status |
 |---|------|------|--------|
-| 1 | Test + implement BRRRRBreakdown | `src/components/detail/BRRRRBreakdown.tsx` | |
-| 2 | Deal detail page with routing | `src/App.tsx` routes | |
-| 3 | Test + implement CompsTable | `src/components/detail/CompsTable.tsx` | |
-| 4 | Implement AIAnalysis component | `src/components/detail/AIAnalysis.tsx` | |
-| 5 | Test + implement WhatIfSliders | `src/components/detail/WhatIfSliders.tsx` | |
-| 6 | Implement useMapSync hook | `src/hooks/useMapSync.ts` | |
-| 7 | Implement Settings page | `src/components/settings/` | |
+| 1 | Test + implement BRRRRBreakdown | `src/components/detail/BRRRRBreakdown.tsx` | ✅ 12 tests |
+| 2 | Deal detail page with routing | `src/App.tsx` + `src/pages/DealDetailPage.tsx` | ✅ |
+| 3 | Test + implement CompsTable | `src/components/detail/CompsTable.tsx` | ✅ 9 tests |
+| 4 | Implement AIAnalysis component | `src/components/detail/AIAnalysis.tsx` | ✅ |
+| 5 | Test + implement WhatIfSliders | `src/components/detail/WhatIfSliders.tsx` | ✅ 8 tests |
+| 6 | Implement useMapSync hook | `src/hooks/useMapSync.ts` | ✅ |
+| 7 | Implement Settings page | `src/components/settings/SettingsPage.tsx` | ✅ |
 
 **Key details:**
 - What-If Calculator: sliders for purchase/rehab/rent → hit `/deals/{id}/what-if` (pure math, <100ms).
