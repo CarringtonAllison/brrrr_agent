@@ -25,10 +25,10 @@ npm test                        # verify 1 test passes
 ## Current Status
 
 **Last updated:** 2026-04-16
-**Current phase:** Phase 3 COMPLETE — starting Phase 4
+**Current phase:** Phase 4 COMPLETE — starting Phase 5
 **Total backend tests:** 239 passing
-**Total frontend tests:** 1 passing
-**Commits so far:** 20
+**Total frontend tests:** 44 passing
+**Commits so far:** 23
 
 ---
 
@@ -117,18 +117,18 @@ npm test                        # verify 1 test passes
 - Motivation detector: keyword tiers (high/medium/low signals). Regex for condition patterns. Score 1-10.
 - Orchestrator: async generator yielding SSE events. Scrape → prefilter → analysis (parallel with scraping) → AI review (concurrency=3). Pipeline checkpointing to DB.
 
-### Phase 4: React Frontend — Core [NOT STARTED]
+### Phase 4: React Frontend — Core [COMPLETE]
 
 | # | Task | File | Status |
 |---|------|------|--------|
-| 1 | TypeScript type definitions | `src/types/*.ts` | |
-| 2 | Test + implement API client | `src/api/` | |
-| 3 | Test + implement MarketsContext | `src/contexts/MarketsContext.tsx` | |
-| 4 | Implement MarketPillBar + AddMarketInput | `src/components/markets/` | |
-| 5 | Test + implement ListingsMap (Leaflet) | `src/components/map/` | |
-| 6 | Test + implement DealCard + list + filters | `src/components/listings/` | |
-| 7 | Test + implement useScanStream SSE hook | `src/hooks/useScanStream.ts` | |
-| 8 | Implement ScanContext + ScanStatusBar | `src/contexts/ScanContext.tsx` | |
+| 1 | TypeScript type definitions | `src/types/index.ts` | ✅ |
+| 2 | Test + implement API client | `src/api/client.ts` | ✅ 11 tests |
+| 3 | Test + implement MarketsContext | `src/contexts/MarketsContext.tsx` | ✅ 7 tests |
+| 4 | Implement MarketPillBar + AddMarketInput | `src/components/markets/` | ✅ |
+| 5 | Test + implement ListingsMap (Leaflet) | `src/components/map/` | ✅ 6 tests |
+| 6 | Test + implement DealCard + list + filters | `src/components/listings/` | ✅ 10 tests |
+| 7 | Test + implement useScanStream SSE hook | `src/hooks/useScanStream.ts` | ✅ 10 tests |
+| 8 | Implement ScanContext + ScanStatusBar | `src/contexts/ScanContext.tsx` | ✅ |
 
 **Key details:**
 - Leaflet + OpenStreetMap (free, no API key). Color-coded pins: green(STRONG), blue(GOOD), amber(MAYBE), gray(pending).
