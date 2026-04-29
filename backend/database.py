@@ -279,6 +279,63 @@ class Database:
             return None
         return _row_to_dict(row)
 
+    def list_listings_for_market(self, market_id: str) -> list[dict]:
+        rows = self.conn.execute(
+            "SELECT * FROM listings WHERE market_id = ? ORDER BY last_seen_at DESC",
+            (market_id,),
+        ).fetchall()
+        return [_row_to_dict(r) for r in rows]
+
+    def update_analysis(
+        self,
+        listing_id: str,
+        brrrr: dict | None = None,
+        grade: str | None = None,
+        ai_review: dict | None = None,
+        ai_summary: str | None = None,
+        motivation_score: int | None = None,
+        negotiation_advice: dict | None = None,
+    ) -> None:
+        """Persist analysis results to a listing. Only updates fields that are not None."""
+        updates: dict[str, object] = {}
+
+        if brrrr is not None:
+            for src, col in [
+                ("cash_left_in_deal", "cash_left_in_deal"),
+                ("monthly_cashflow", "monthly_cashflow"),
+                ("coc_return", "coc_return"),
+                ("dscr", "dscr"),
+                ("rent_to_price", "rent_to_price"),
+                ("total_all_in", "total_all_in"),
+                ("estimated_rent", "estimated_rent"),
+                ("arv_likely", "arv_likely"),
+                ("arv_conservative", "arv_conservative"),
+                ("arv_aggressive", "arv_aggressive"),
+            ]:
+                if src in brrrr and brrrr[src] is not None:
+                    updates[col] = brrrr[src]
+
+        if grade is not None:
+            updates["grade"] = grade
+        if ai_review is not None:
+            updates["ai_review"] = json.dumps(ai_review)
+        if ai_summary is not None:
+            updates["ai_summary"] = ai_summary
+        if motivation_score is not None:
+            updates["motivation_score"] = motivation_score
+        if negotiation_advice is not None:
+            updates["negotiation_advice"] = json.dumps(negotiation_advice)
+
+        if not updates:
+            return
+
+        set_clause = ", ".join(f"{k} = ?" for k in updates)
+        values = list(updates.values()) + [listing_id]
+        self.conn.execute(
+            f"UPDATE listings SET {set_clause} WHERE id = ?", values
+        )
+        self.conn.commit()
+
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
