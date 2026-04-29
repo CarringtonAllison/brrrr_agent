@@ -121,3 +121,61 @@ class TestDatabase:
         listing = db.get_listing(listing_id)
         assert listing["price"] == 70_000
         assert listing["previous_price"] == 75_000
+
+
+class TestUpdateAnalysis:
+    def test_persists_brrrr_and_ai_fields(self, tmp_path):
+        db = Database(str(tmp_path / "test.db"))
+        market_id = db.create_market("Test", "Test", "OH", ["44101"])
+        listing_id = db.upsert_listing({
+            "source": "redfin",
+            "source_id": "rf_xyz",
+            "address": "9 Pine Way",
+            "normalized_address": "9 pine way",
+            "market_id": market_id,
+            "zip_code": "44101",
+            "price": 68_000,
+            "beds": 3,
+            "baths": 1.0,
+            "sqft": 1100,
+        })
+
+        db.update_analysis(
+            listing_id,
+            brrrr={"grade": "GOOD", "cash_left_in_deal": 8000, "monthly_cashflow": 200,
+                   "coc_return": 0.13, "dscr": 1.25, "rent_to_price": 0.014,
+                   "total_all_in": 95000, "estimated_rent": 950,
+                   "arv_likely": 95000},
+            grade="GOOD",
+            ai_review={"verdict": "GOOD", "summary": "solid", "confidence": 0.7},
+            ai_summary="Solid BRRRR. Watch the roof.",
+            motivation_score=6,
+            negotiation_advice={"offer_range_low": 55000, "offer_range_high": 62000,
+                                "max_purchase_breakeven": 65000, "was_clamped": False},
+        )
+
+        listing = db.get_listing(listing_id)
+        assert listing["grade"] == "GOOD"
+        assert listing["cash_left_in_deal"] == 8000
+        assert listing["coc_return"] == 0.13
+        assert listing["motivation_score"] == 6
+        # JSON blobs round-trip
+        import json as _json
+        assert _json.loads(listing["ai_review"])["verdict"] == "GOOD"
+        assert _json.loads(listing["negotiation_advice"])["offer_range_low"] == 55000
+
+    def test_partial_update_leaves_other_fields_alone(self, tmp_path):
+        db = Database(str(tmp_path / "test.db"))
+        market_id = db.create_market("Test", "Test", "OH", ["44101"])
+        listing_id = db.upsert_listing({
+            "source": "redfin", "source_id": "x", "address": "1 A St",
+            "normalized_address": "1 a street", "market_id": market_id,
+            "zip_code": "44101", "price": 50_000, "beds": 3, "baths": 1.0, "sqft": 900,
+        })
+
+        db.update_analysis(listing_id, grade="MAYBE", motivation_score=4)
+        listing = db.get_listing(listing_id)
+        assert listing["grade"] == "MAYBE"
+        assert listing["motivation_score"] == 4
+        # untouched fields stay None
+        assert listing["ai_review"] is None
