@@ -12,8 +12,19 @@ import { DealDetailPage } from './pages/DealDetailPage'
 import { useScan } from './contexts/ScanContext'
 import type { Listing } from './types'
 
+function DealCardSkeleton() {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+      <div className="h-3 bg-gray-100 rounded w-1/2 mb-3" />
+      <div className="h-6 bg-gray-200 rounded w-1/3 mb-2" />
+      <div className="h-3 bg-gray-100 rounded w-2/3" />
+    </div>
+  )
+}
+
 function Dashboard() {
-  const { listings } = useScan()
+  const { listings, isScanning, error } = useScan()
   const navigate = useNavigate()
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -25,7 +36,18 @@ function Dashboard() {
   return (
     <div className="flex h-full gap-4">
       <div className="w-80 shrink-0 overflow-y-auto flex flex-col gap-2 pr-1">
-        {listings.length === 0 ? (
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded px-3 py-2">
+            {error}
+          </div>
+        )}
+        {listings.length === 0 && isScanning ? (
+          <>
+            <DealCardSkeleton />
+            <DealCardSkeleton />
+            <DealCardSkeleton />
+          </>
+        ) : listings.length === 0 ? (
           <p className="text-gray-400 text-sm text-center mt-8">No listings yet — start a scan.</p>
         ) : (
           listings.map(listing => (

@@ -72,3 +72,4 @@ class ScanStatusResponse(BaseModel):
     scan_id: str | None = None
     is_active: bool
     market_id: str
+    last_completed_at: str | None = None

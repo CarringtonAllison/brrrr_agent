@@ -27,6 +27,23 @@ export interface BRRRRBreakdown {
   grade_reasons: string[]
 }
 
+export interface DealReview {
+  verdict: 'STRONG' | 'GOOD' | 'MAYBE' | 'SKIP' | 'UNKNOWN'
+  summary: string
+  risks?: string[]
+  opportunities?: string[]
+  confidence: number
+}
+
+export interface NegotiationAdvice {
+  offer_range_low: number
+  offer_range_high: number
+  rationale?: string
+  tactics?: string[]
+  max_purchase_breakeven?: number
+  was_clamped?: boolean
+}
+
 export interface Listing {
   id?: string
   address: string
@@ -48,6 +65,8 @@ export interface Listing {
   motivation_score: number | null
   motivation_signals: string[]
   brrrr: BRRRRBreakdown | null
+  ai_review?: DealReview
+  negotiation?: NegotiationAdvice
 }
 
 export type ScanEventType =
@@ -74,12 +93,20 @@ export interface DoneEvent {
   summary: { total: number; strong: number; good: number }
 }
 
-export type ScanEvent = SourceStatusEvent | ListingEvent | DoneEvent
+export interface AiReviewEvent {
+  type: 'ai_review'
+  listing_id: string
+  review: DealReview
+  negotiation: NegotiationAdvice
+}
+
+export type ScanEvent = SourceStatusEvent | ListingEvent | DoneEvent | AiReviewEvent
 
 export interface ScanStatus {
   scan_id: string | null
   is_active: boolean
   market_id: string
+  last_completed_at?: string | null
 }
 
 export const GRADE_COLORS: Record<Grade, string> = {

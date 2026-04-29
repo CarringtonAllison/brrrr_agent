@@ -61,6 +61,39 @@ Open http://localhost:5173
 | `NOTIFY_EMAIL` | No | Email to receive digest |
 | `HUD_API_KEY` | No | HUD Fair Market Rents API (free) |
 
+## Running Tests
+
+```bash
+# Backend (314 tests)
+cd backend && source venv/bin/activate && pytest
+
+# Frontend (75 tests)
+npm test
+
+# E2E (5 Playwright tests, requires browser)
+npx playwright test
+```
+
+## API Endpoints
+
+```
+GET    /health
+GET    /markets
+POST   /markets
+DELETE /markets/{id}
+POST   /scans/{market_id}/start
+GET    /scans/{market_id}/status
+GET    /scans/{scan_id}/stream            (SSE: source_status | listing | ai_review | done)
+GET    /markets/{id}/listings
+GET    /listings/{id}
+GET    /listings/{id}/comps
+POST   /deals/{id}/what-if                (re-run BRRRR with overrides)
+POST   /deals/{id}/ask                    (free-form Q&A via Claude Sonnet)
+GET    /deals/{id}/sensitivity            (price × interest-rate matrix)
+GET    /settings                          (pre-filter thresholds)
+PUT    /settings
+```
+
 ## License
 
 MIT

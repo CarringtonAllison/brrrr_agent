@@ -1,4 +1,4 @@
-import type { Market, MarketCreate, ScanStatus } from '../types'
+import type { Listing, Market, MarketCreate, ScanStatus } from '../types'
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const resp = await fetch(path, {
@@ -31,4 +31,8 @@ export function startScan(marketId: string): Promise<{ scan_id: string; market_i
 
 export function getScanStatus(marketId: string): Promise<ScanStatus> {
   return request(`/scans/${marketId}/status`, { method: 'GET' })
+}
+
+export function fetchMarketListings(marketId: string): Promise<Listing[]> {
+  return request(`/markets/${marketId}/listings`, { method: 'GET' })
 }

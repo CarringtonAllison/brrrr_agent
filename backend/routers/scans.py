@@ -53,17 +53,26 @@ def create_scans_router(db: Database) -> APIRouter:
             raise HTTPException(status_code=404, detail="Market not found")
 
         row = db.conn.execute(
-            "SELECT id, status FROM pipeline_runs WHERE market_id = ? ORDER BY started_at DESC LIMIT 1",
+            "SELECT id, status, completed_at FROM pipeline_runs WHERE market_id = ? ORDER BY started_at DESC LIMIT 1",
             (market_id,),
         ).fetchone()
 
         is_active = row is not None and row["status"] in ("started", "running")
         scan_id = row["id"] if row else None
 
+        last_completed_at = None
+        last_done = db.conn.execute(
+            "SELECT completed_at FROM pipeline_runs WHERE market_id = ? AND completed_at IS NOT NULL ORDER BY completed_at DESC LIMIT 1",
+            (market_id,),
+        ).fetchone()
+        if last_done:
+            last_completed_at = last_done["completed_at"]
+
         return ScanStatusResponse(
             scan_id=scan_id,
             is_active=is_active,
             market_id=market_id,
+            last_completed_at=last_completed_at,
         )
 
     @router.get("/{scan_id}/stream")
@@ -80,6 +89,12 @@ def create_scans_router(db: Database) -> APIRouter:
         async def event_generator():
             async for event in run_scan(market):
                 yield f"data: {json.dumps(event)}\n\n"
+                if event.get("type") == "done":
+                    db.conn.execute(
+                        "UPDATE pipeline_runs SET status = ?, completed_at = ? WHERE id = ?",
+                        ("completed", _now(), scan_id),
+                    )
+                    db.conn.commit()
 
         return StreamingResponse(
             event_generator(),

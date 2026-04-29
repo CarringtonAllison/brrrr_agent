@@ -8,6 +8,7 @@ interface ScanContextValue {
   listings: Listing[]
   summary: { total: number; strong: number; good: number } | null
   sourceStatuses: Partial<Record<string, { status: string; count: number }>>
+  error: string | null
   triggerScan: (marketId: string) => Promise<void>
   stopScan: () => void
 }
@@ -15,7 +16,7 @@ interface ScanContextValue {
 const ScanContext = createContext<ScanContextValue | null>(null)
 
 export function ScanProvider({ children }: { children: ReactNode }) {
-  const { isScanning, listings, summary, sourceStatuses, startStream, stopStream } = useScanStream()
+  const { isScanning, listings, summary, sourceStatuses, error, startStream, stopStream } = useScanStream()
 
   const triggerScan = useCallback(async (marketId: string) => {
     const { scan_id } = await startScan(marketId)
@@ -23,7 +24,7 @@ export function ScanProvider({ children }: { children: ReactNode }) {
   }, [startStream])
 
   return (
-    <ScanContext.Provider value={{ isScanning, listings, summary, sourceStatuses, triggerScan, stopScan: stopStream }}>
+    <ScanContext.Provider value={{ isScanning, listings, summary, sourceStatuses, error, triggerScan, stopScan: stopStream }}>
       {children}
     </ScanContext.Provider>
   )

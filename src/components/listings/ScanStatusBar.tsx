@@ -1,11 +1,37 @@
+import { useEffect, useState } from 'react'
 import { useScan } from '../../contexts/ScanContext'
 import { useMarkets } from '../../contexts/MarketsContext'
+import { getScanStatus } from '../../api/client'
+
+function relativeTime(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  const ms = Date.now() - new Date(iso).getTime()
+  if (Number.isNaN(ms) || ms < 0) return null
+  const minutes = Math.floor(ms / 60000)
+  if (minutes < 1) return 'just now'
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 
 export function ScanStatusBar() {
-  const { isScanning, summary, sourceStatuses, triggerScan, stopScan } = useScan()
+  const { isScanning, summary, sourceStatuses, error, triggerScan, stopScan } = useScan()
   const { activeMarketId } = useMarkets()
+  const [lastCompletedAt, setLastCompletedAt] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!activeMarketId || isScanning) return
+    let cancelled = false
+    getScanStatus(activeMarketId)
+      .then(s => { if (!cancelled) setLastCompletedAt(s.last_completed_at ?? null) })
+      .catch(() => { /* silent */ })
+    return () => { cancelled = true }
+  }, [activeMarketId, isScanning, summary])
 
   if (!isScanning && !summary) {
+    const freshness = relativeTime(lastCompletedAt)
     return (
       <div className="flex items-center gap-3">
         <button
@@ -15,6 +41,9 @@ export function ScanStatusBar() {
         >
           Scan
         </button>
+        {freshness && (
+          <span className="text-xs text-gray-500">Last scan: {freshness}</span>
+        )}
       </div>
     )
   }
@@ -32,6 +61,7 @@ export function ScanStatusBar() {
             {src}: {s?.count ?? 0}
           </span>
         ))}
+        {error && <span className="text-amber-600 text-xs">{error}</span>}
         <button onClick={stopScan} className="ml-2 text-gray-400 hover:text-gray-600 text-xs">
           Stop
         </button>

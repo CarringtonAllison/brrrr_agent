@@ -67,6 +67,20 @@ export function DealCard({ listing, onSelect, isHighlighted }: Props) {
           Motivation: <span className="font-medium">{listing.motivation_score}&nbsp;/&nbsp;10</span>
         </div>
       )}
+
+      {/* AI review status: subtle pill so users know a verdict is coming or arrived */}
+      {(listing.grade === 'STRONG' || listing.grade === 'GOOD' || listing.grade === 'MAYBE') && (
+        <div className="mt-2 text-xs">
+          {listing.ai_review ? (
+            <span className="inline-flex items-center gap-1 text-purple-700">
+              AI: <strong>{listing.ai_review.verdict}</strong>
+              <span className="text-purple-400">({Math.round(listing.ai_review.confidence * 100)}% conf)</span>
+            </span>
+          ) : (
+            <span className="text-gray-400 italic">AI review pending…</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
