@@ -133,4 +133,39 @@ describe('useScanStream', () => {
     act(() => { result.current.startStream('scan-2') })
     expect(MockEventSource.instances[0].close).toHaveBeenCalled()
   })
+
+  it('merges ai_review events onto matching listing', () => {
+    const { result } = renderHook(() => useScanStream())
+    act(() => { result.current.startStream('scan-1') })
+
+    act(() => {
+      MockEventSource.instances[0].emit({
+        type: 'listing',
+        listing: { id: 'l-1', address: '1 Elm', grade: 'STRONG' },
+      })
+    })
+
+    act(() => {
+      MockEventSource.instances[0].emit({
+        type: 'ai_review',
+        listing_id: 'l-1',
+        review: { verdict: 'STRONG', summary: 'solid', confidence: 0.9 },
+        negotiation: { offer_range_low: 50000, offer_range_high: 60000 },
+      })
+    })
+
+    expect(result.current.listings[0].ai_review?.verdict).toBe('STRONG')
+    expect(result.current.listings[0].negotiation?.offer_range_high).toBe(60000)
+  })
+
+  it('exposes connection error state on EventSource error', () => {
+    const { result } = renderHook(() => useScanStream())
+    act(() => { result.current.startStream('scan-1') })
+
+    act(() => {
+      MockEventSource.instances[0].emitError()
+    })
+
+    expect(result.current.error).not.toBeNull()
+  })
 })
