@@ -25,10 +25,11 @@ npm test                        # verify 1 test passes
 ## Current Status
 
 **Last updated:** 2026-04-29
-**Current phase:** Phase 6 COMPLETE — starting Phase 7
-**Total backend tests:** 302 passing
-**Total frontend tests:** 73 passing
-**Commits so far:** 27
+**Current phase:** Phase 7 COMPLETE — project done
+**Total backend tests:** 314 passing
+**Total frontend tests:** 75 passing
+**E2E tests:** 5 passing (Playwright)
+**Commits so far:** 28
 
 ---
 
@@ -174,16 +175,17 @@ npm test                        # verify 1 test passes
 - Offer range is code-clamped: offer_range_high can never exceed max_purchase_breakeven.
 - All data sources free: Census ACS, FEMA NFHL, HUD FMR APIs.
 
-### Phase 7: E2E Tests + Polish [NOT STARTED]
+### Phase 7: E2E Tests + Polish [COMPLETE]
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Playwright E2E: full scan flow | |
-| 2 | Playwright E2E: deal detail + what-if | |
-| 3 | Optional email digest (notifier.py) | |
-| 4 | Loading skeletons, error states | |
-| 5 | Cache freshness indicators, SSE reconnect | |
-| 6 | Final README.md, CLAUDE.md updates | |
+| 1 | Playwright E2E: full scan flow | ✅ 2 tests |
+| 2 | Playwright E2E: deal detail + what-if | ✅ 3 tests |
+| 3 | Optional email digest (notifier.py) | ✅ 12 tests |
+| 4 | Loading skeletons, error states | ✅ DealCardSkeleton, error banners |
+| 5 | Cache freshness indicators, SSE reconnect | ✅ exponential backoff (1s/2s/4s), `last_completed_at` from scan status |
+| 6 | Final README.md, CLAUDE.md updates | ✅ endpoints + test commands |
+| 7 | ai_review event wiring on frontend | ✅ merges review onto matching listing |
 
 ---
 
@@ -306,7 +308,10 @@ backend/
     tools.py           ✅ Phase 6 (BRRRR scenarios, max purchase, rehab, FEMA/Census/HUD)
   routers/
     deals.py           ✅ Phase 6 (/what-if, /ask, /sensitivity, /listings, /comps, /settings)
-  notifier.py          ⬜ Phase 7
+  notifier.py          ✅ Phase 7 (Gmail SMTP digest of STRONG/GOOD deals)
+e2e/
+  scan-flow.spec.ts    ✅ Phase 7 (dashboard → scan → grade pills)
+  deal-detail.spec.ts  ✅ Phase 7 (detail page → what-if → ask)
   tests/
     test_smoke.py         ✅
     test_brrrr_calculator.py ✅ 28 tests
@@ -322,6 +327,7 @@ backend/
     test_deal_analyst.py   ✅ 9 tests
     test_negotiation_agent.py ✅ 7 tests
     test_deals_router.py   ✅ 15 tests
+    test_notifier.py       ✅ 12 tests
 src/
   App.tsx              ✅ Minimal shell
   App.test.tsx         ✅ 1 smoke test
