@@ -24,11 +24,11 @@ npm test                        # verify 1 test passes
 
 ## Current Status
 
-**Last updated:** 2026-04-16
-**Current phase:** Phase 5 COMPLETE — starting Phase 6
-**Total backend tests:** 239 passing
+**Last updated:** 2026-04-29
+**Current phase:** Phase 6 COMPLETE — starting Phase 7
+**Total backend tests:** 302 passing
 **Total frontend tests:** 73 passing
-**Commits so far:** 26
+**Commits so far:** 27
 
 ---
 
@@ -154,18 +154,18 @@ npm test                        # verify 1 test passes
 - "Ask Claude" text input → `/deals/{id}/ask` (tool-use enabled, 3-10s).
 - Sensitivity matrix: price x rate → CoC heatmap.
 
-### Phase 6: Claude AI Agents + Tools [NOT STARTED]
+### Phase 6: Claude AI Agents + Tools [COMPLETE]
 
 | # | Task | File | Status |
 |---|------|------|--------|
-| 1 | Test all tool implementations | `tests/test_tools.py` | |
-| 2 | Implement tools | `agents/tools.py` | |
-| 3 | Test deal analyst (tool-use loop, JSON parse, fallback) | `tests/test_deal_analyst.py` | |
-| 4 | Implement deal analyst (Sonnet) | `agents/deal_analyst.py` | |
-| 5 | Test negotiation agent (offer clamping) | `tests/test_negotiation_agent.py` | |
-| 6 | Implement negotiation agent (Haiku) | `agents/negotiation_agent.py` | |
-| 7 | Wire agents into orchestrator Stage 3 | `agents/orchestrator.py` | |
-| 8 | Test + implement /deals endpoints | `routers/deals.py` | |
+| 1 | Test all tool implementations | `tests/test_tools.py` | ✅ 25 tests |
+| 2 | Implement tools | `agents/tools.py` | ✅ |
+| 3 | Test deal analyst (tool-use loop, JSON parse, fallback) | `tests/test_deal_analyst.py` | ✅ 9 tests |
+| 4 | Implement deal analyst (Sonnet) | `agents/deal_analyst.py` | ✅ |
+| 5 | Test negotiation agent (offer clamping) | `tests/test_negotiation_agent.py` | ✅ 7 tests |
+| 6 | Implement negotiation agent (Haiku) | `agents/negotiation_agent.py` | ✅ |
+| 7 | Wire agents into orchestrator Stage 3 | `agents/orchestrator.py` | ✅ 5 new tests |
+| 8 | Test + implement /deals endpoints | `routers/deals.py` | ✅ 15 tests |
 
 **Key details:**
 - deal_analyst (Sonnet) tools: calculate_brrrr_scenarios, lookup_rental_comps (HUD+Census), lookup_property_taxes (Census), check_flood_zone (FEMA), calculate_max_purchase_price, estimate_rehab_costs, lookup_area_demographics (Census).
@@ -300,10 +300,12 @@ backend/
     zillow_scraper.py  ✅ Playwright + stealth + CF detection
     scraper_manager.py ✅ Cross-source dedup + merge
   agents/
-    orchestrator.py    ✅ Phase 3
-    deal_analyst.py    ⬜ Phase 6
-    negotiation_agent.py ⬜ Phase 6
-    tools.py           ⬜ Phase 6
+    orchestrator.py    ✅ Phase 3 + Stage 3 AI review (Phase 6)
+    deal_analyst.py    ✅ Phase 6 (Sonnet, tool-use loop)
+    negotiation_agent.py ✅ Phase 6 (Haiku, offer clamping)
+    tools.py           ✅ Phase 6 (BRRRR scenarios, max purchase, rehab, FEMA/Census/HUD)
+  routers/
+    deals.py           ✅ Phase 6 (/what-if, /ask, /sensitivity, /listings, /comps, /settings)
   notifier.py          ⬜ Phase 7
   tests/
     test_smoke.py         ✅
@@ -314,8 +316,12 @@ backend/
     test_comp_analyzer.py  ✅ 31 tests
     test_rental_estimator.py ✅ 22 tests
     test_motivation_detector.py ✅ 31 tests
-    test_orchestrator.py   ✅ 14 tests
+    test_orchestrator.py   ✅ 19 tests (incl. AI stage)
     test_scans_router.py   ✅ 9 tests
+    test_tools.py          ✅ 25 tests
+    test_deal_analyst.py   ✅ 9 tests
+    test_negotiation_agent.py ✅ 7 tests
+    test_deals_router.py   ✅ 15 tests
 src/
   App.tsx              ✅ Minimal shell
   App.test.tsx         ✅ 1 smoke test
